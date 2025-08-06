@@ -102,10 +102,10 @@ export default function ProjectCard({ project, artistName, onClick, showActions 
   };
 
   const isOverdue = project.estimatedCompletion && new Date(project.estimatedCompletion) < new Date();
-  const isNearDeadline = project.estimatedCompletion && {
+  const isNearDeadline = project.estimatedCompletion && (() => {
     const diffDays = Math.ceil((new Date(project.estimatedCompletion).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
     return diffDays <= 7 && diffDays > 0;
-  };
+  })();
 
   const budgetUtilization = (parseFloat(project.spent) / parseFloat(project.budget)) * 100;
   const isOverBudget = budgetUtilization > 100;
@@ -159,14 +159,14 @@ export default function ProjectCard({ project, artistName, onClick, showActions 
             <div className="flex items-center justify-between text-xs text-[var(--fm-text-dim)] mb-1">
               <span>Progress</span>
               <span className={cn(
-                project.progress >= 90 ? "text-[var(--fm-success)]" : 
-                project.progress >= 70 ? "text-[var(--fm-warning)]" : 
+                (project.progress || 0) >= 90 ? "text-[var(--fm-success)]" : 
+                (project.progress || 0) >= 70 ? "text-[var(--fm-warning)]" : 
                 "text-[var(--fm-accent)]"
               )}>
-                {project.progress}%
+                {project.progress || 0}%
               </span>
             </div>
-            <Progress value={project.progress} className="h-2" />
+            <Progress value={project.progress || 0} className="h-2" />
           </div>
 
           {/* Budget and Timeline */}
@@ -192,7 +192,7 @@ export default function ProjectCard({ project, artistName, onClick, showActions 
                 <span className="text-[var(--fm-text-dim)]">Release</span>
               </div>
               <p className="font-semibold text-[var(--fm-text)]">
-                {formatDate(project.releaseDate)}
+                {formatDate(project.releaseDate ? new Date(project.releaseDate) : null)}
               </p>
             </div>
           </div>
@@ -204,15 +204,15 @@ export default function ProjectCard({ project, artistName, onClick, showActions 
             <StatusIcon className="w-4 h-4 text-[var(--fm-accent)]" />
             <span className={cn(
               "text-sm font-semibold",
-              project.progress >= 90 ? "text-[var(--fm-success)]" : 
-              project.progress >= 70 ? "text-[var(--fm-warning)]" : 
+              (project.progress || 0) >= 90 ? "text-[var(--fm-success)]" : 
+              (project.progress || 0) >= 70 ? "text-[var(--fm-warning)]" : 
               "text-[var(--fm-accent)]"
             )}>
-              {project.progress}% Complete
+              {project.progress || 0}% Complete
             </span>
           </div>
           <p className="text-xs text-[var(--fm-text-dim)] mb-3">
-            ETA: {getTimeRemaining(project.estimatedCompletion)}
+            ETA: {getTimeRemaining(project.estimatedCompletion ? new Date(project.estimatedCompletion) : null)}
           </p>
           
           {/* Quick Actions */}

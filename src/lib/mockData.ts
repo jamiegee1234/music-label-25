@@ -32,7 +32,7 @@ export const generateMockArtist = (overrides: Partial<Artist> = {}): Omit<Artist
     chartPeak: Math.random() > 0.3 ? Math.floor(Math.random() * 99) + 1 : undefined,
     performanceRating: Math.floor(Math.random() * 40) + 60,
     labelId: "stellar-music",
-    contractExpiry: new Date(Date.now() + Math.random() * 5 * 365 * 24 * 60 * 60 * 1000), // Random future date within 5 years
+    contractExpiry: new Date(Date.now() + Math.random() * 5 * 365 * 24 * 60 * 60 * 1000).toISOString(), // Random future date within 5 years
     mood: Math.floor(Math.random() * 40) + 60,
     publicImage: Math.floor(Math.random() * 40) + 60,
     traits: ["Creative", "Hardworking", "Collaborative", "Independent", "Perfectionist"].slice(0, Math.floor(Math.random() * 3) + 1),
@@ -62,8 +62,8 @@ export const generateMockProject = (artistId: string, overrides: Partial<Project
     producer: producers[Math.floor(Math.random() * producers.length)],
     studio: studios[Math.floor(Math.random() * studios.length)],
     progress: Math.floor(Math.random() * 100),
-    estimatedCompletion: new Date(Date.now() + Math.random() * 180 * 24 * 60 * 60 * 1000), // Random date within 6 months
-    releaseDate: new Date(Date.now() + Math.random() * 365 * 24 * 60 * 60 * 1000), // Random date within 1 year
+    estimatedCompletion: new Date(Date.now() + Math.random() * 180 * 24 * 60 * 60 * 1000).toISOString(), // Random date within 6 months
+    releaseDate: new Date(Date.now() + Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString(), // Random date within 1 year
     ...overrides
   };
 };
@@ -71,25 +71,29 @@ export const generateMockProject = (artistId: string, overrides: Partial<Project
 export const generateMockChart = (artistId: string, overrides: Partial<Chart> = {}): Omit<Chart, 'id' | 'createdAt'> => {
   const songTitles = ["Street Symphony", "Neon Nights", "Digital Dreams", "Midnight Hour", "Electric Feel"];
   const chartTypes = ["global", "regional", "genre"];
+  const chartNames = ["Billboard Hot 100", "Spotify Global Top 50", "Apple Music Top Charts", "UK Singles Chart"];
   
   const position = Math.floor(Math.random() * 100) + 1;
   const previousPosition = Math.random() > 0.3 ? position + Math.floor(Math.random() * 20) - 10 : undefined;
 
   return {
     artistId,
-    projectId: undefined, // Can be linked to a project if needed
+    // projectId: undefined, // Can be linked to a project if needed
     songTitle: songTitles[Math.floor(Math.random() * songTitles.length)],
     position,
     previousPosition,
+    chartName: chartNames[Math.floor(Math.random() * chartNames.length)],
     chartType: chartTypes[Math.floor(Math.random() * chartTypes.length)],
     streams: Math.floor(Math.random() * 50000000) + 1000000, // 1M-51M streams
+    peakPosition: Math.floor(Math.random() * position) + 1,
+    weeksOnChart: Math.floor(Math.random() * 20) + 1,
     week: 48,
     year: 2024,
     ...overrides
   };
 };
 
-export const generateMockProspect = (overrides: Partial<Prospect> = {}): Omit<Prospect, 'id' | 'discoveredAt'> => {
+export const generateMockProspect = (overrides: Partial<Prospect> = {}): Omit<Prospect, 'id' | 'createdAt'> => {
   const names = ["Riley Park", "Jordan Stone", "Casey River", "Alex Moon", "Taylor Spark"];
   const genres = ["Indie Pop", "Alternative R&B", "Electronic", "Folk Rock", "Hip-Hop"];
   const locations = ["Los Angeles, CA", "Nashville, TN", "Atlanta, GA", "New York, NY", "Austin, TX"];
@@ -99,6 +103,9 @@ export const generateMockProspect = (overrides: Partial<Prospect> = {}): Omit<Pr
     name: names[Math.floor(Math.random() * names.length)],
     age: Math.floor(Math.random() * 15) + 18, // 18-33 years old
     genre: genres[Math.floor(Math.random() * genres.length)],
+    status: "prospect",
+    contactEmail: `${names[Math.floor(Math.random() * names.length)].toLowerCase().replace(' ', '.')}@email.com`,
+    rating: Math.floor(Math.random() * 10) + 1,
     location: locations[Math.floor(Math.random() * locations.length)],
     socialFollowers: Math.floor(Math.random() * 2000000) + 50000, // 50K-2.05M
     socialGrowthRate: (Math.random() * 100 + 10).toFixed(1), // 10-110%
@@ -136,9 +143,9 @@ export const generateMockFinancialRecord = (artistId?: string, overrides: Partia
     category,
     amount: (Math.random() * 100000 + 1000).toFixed(2), // $1K-$101K
     description: categoryDescriptions[Math.floor(Math.random() * categoryDescriptions.length)],
-    artistId,
+    artistId: artistId || "",
     projectId: undefined,
-    date: new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000), // Random date within last 90 days
+    date: new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000).toISOString(), // Random date within last 90 days
     ...overrides
   };
 };
@@ -157,11 +164,12 @@ export const generateMockContract = (artistId: string, overrides: Partial<Contra
   return {
     artistId,
     type: types[Math.floor(Math.random() * types.length)],
+    value: advance.toString(),
     advance: advance.toString(),
     royaltyRate,
-    duration,
-    startDate,
-    endDate,
+    duration: duration.toString(),
+    startDate: typeof startDate === 'string' ? startDate : startDate.toISOString(),
+    endDate: typeof endDate === 'string' ? endDate : endDate.toISOString(),
     clauses: clauses.slice(0, Math.floor(Math.random() * 3) + 2), // 2-4 clauses
     status: endDate > new Date() ? "active" : "expired",
     ...overrides
@@ -188,10 +196,12 @@ export const generateMockIndustryNews = (overrides: Partial<IndustryNews> = {}):
 
   return {
     title: titles[Math.floor(Math.random() * titles.length)],
+    content: summaries[Math.floor(Math.random() * summaries.length)],
+    source: "Industry News",
     summary: summaries[Math.floor(Math.random() * summaries.length)],
     category: categories[Math.floor(Math.random() * categories.length)],
     priority: priorities[Math.floor(Math.random() * priorities.length)] as "low" | "medium" | "high",
-    publishedAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000), // Random date within last week
+    publishedAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(), // Random date within last week
     ...overrides
   };
 };
@@ -213,7 +223,7 @@ export const generateMockCharts = (artistIds: string[], chartsPerArtist: number 
   );
 };
 
-export const generateMockProspects = (count: number): Omit<Prospect, 'id' | 'discoveredAt'>[] => {
+export const generateMockProspects = (count: number): Omit<Prospect, 'id' | 'createdAt'>[] => {
   return Array.from({ length: count }, () => generateMockProspect());
 };
 
@@ -227,6 +237,6 @@ export const generateMockContracts = (artistIds: string[]): Omit<Contract, 'id' 
   return artistIds.map(artistId => generateMockContract(artistId));
 };
 
-export const generateMockIndustryNews = (count: number): Omit<IndustryNews, 'id' | 'createdAt'>[] => {
+export const generateMockIndustryNewsList = (count: number): Omit<IndustryNews, 'id' | 'createdAt'>[] => {
   return Array.from({ length: count }, () => generateMockIndustryNews());
 }; 

@@ -174,7 +174,7 @@ export default function ArtistCard({ artist, onClick, showActions = true, classN
                   ? "text-[var(--fm-success)]" 
                   : "text-red-400"
               )}>
-                {formatGrowth(artist.socialGrowthRate)}
+                {formatGrowth(artist.socialGrowthRate || "0")}
               </p>
             </div>
             <div className="space-y-1">
